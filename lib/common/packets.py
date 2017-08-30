@@ -193,15 +193,13 @@ def parse_result_packet(packet, offset=0):
     """
 
     try:
-        responseID = struct.unpack('=H', packet[0+offset:2+offset])[0]
-        totalPacket = struct.unpack('=H', packet[2+offset:4+offset])[0]
-        packetNum = struct.unpack('=H', packet[4+offset:6+offset])[0]
-        taskID = struct.unpack('=H', packet[6+offset:8+offset])[0]
-        length = struct.unpack('=L', packet[8+offset:12+offset])[0]
+        
+        responseID, totalPacket, packetNum, taskID, length = struct.unpack_from('HHHHL',packet)
         if length != '0':
-            data = base64.b64decode(packet[12+offset:12+offset+length])
+            data = base64.b64decode(packet[12+offset:12+offset+length] + "===")
         else:
             data = None
+
         remainingData = packet[12+offset+length:]
         return (PACKET_IDS[responseID], totalPacket, packetNum, taskID, length, data, remainingData)
     except Exception as e:

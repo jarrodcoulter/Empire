@@ -19,7 +19,8 @@ import sqlite3
 import os
 import hashlib
 import time
-
+import fnmatch
+import shlex
 
 # Empire imports
 import helpers
